@@ -92,6 +92,13 @@ This is a **source-available, view-only** repository, not open source. No permis
 - The code is public for viewing only; it is not licensed for reuse or modification.
 - DeepSeek icon from [Simple Icons](https://simpleicons.org/) (CC0); the DeepSeek name and logo belong to DeepSeek.
 
+### Conventions
+
+- **README is bilingual** — a full English version comes first, followed by a full Chinese version; the links at the top jump between them.
+- **Other files keep their original language** — Chinese comments and docs stay Chinese, English stays English. There is no bulk translation and no language-only refactor.
+- **Why technical explanations use English** — code identifiers, library APIs, error messages and Git/GitHub workflows are already English. Using English for new technical notes avoids terminology drift and keeps the project readable for non-Chinese readers. Chinese remains in the README and in files where Chinese is already the working language.
+- **New content** — new code comments and commit messages default to English unless the surrounding file is already Chinese. Existing content is not rewritten just to change its language.
+
 ---
 
 ## 中文版
@@ -179,3 +186,10 @@ DEVELOPMENT.md           架构、数据契约、API 和函数索引
 - Go 后端（`main.go`、`go.mod`）有意不包含在本仓库中。
 - 代码公开仅供查看，未授权复用或修改。
 - DeepSeek 图标来自 [Simple Icons](https://simpleicons.org/)（CC0）；DeepSeek 名称和图标归 DeepSeek 所有。
+
+### 约定
+
+- **README 使用中英双语**：英文完整版在前，中文完整版在后；顶部链接可以在两版之间跳转。
+- **其他文件保持原有语言**：原来用中文的注释和文档继续用中文，原来用英文的继续用英文；不做批量翻译，也不做只改语言的重构。
+- **为什么技术说明用英文**：代码标识符、库 API、报错信息、Git/GitHub 流程本身都是英文。新技术说明用英文可以减少术语漂移，也方便非中文读者阅读。中文保留在 README 和原本就以中文为主的文件里。
+- **新增内容**：新增代码注释和提交信息默认用英文；如果所在文件本来就是中文语境，可以继续用中文。已有内容不为了统一语言而改写。
