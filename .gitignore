@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.idea/
+*.bak
+*.pre-*.bak
+
+# Generated / demo data (not part of this repository)
+bridge_output/
+public/
+
+# Go backend experiment (intentionally excluded)
+main.go
+go.mod
+
+# Earlier experiments
+segs/
+copy.js
+BridgeHeatShader.js

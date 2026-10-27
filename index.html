@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body { margin: 0; }
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<script type="module">
+    // 运行时判断：本地有自托管 three 就用本地，否则回退到 CDN（版本固定 0.185.1）
+    const THREE_VERSION = "0.185.1";
+    const LOCAL = {
+        three: "/vendor/three/three.module.js",
+        addons: "/vendor/three/jsm/",
+    };
+    const CDN = {
+        three: `https://cdn.jsdelivr.net/npm/three@${THREE_VERSION}/build/three.module.js`,
+        addons: `https://cdn.jsdelivr.net/npm/three@${THREE_VERSION}/examples/jsm/`,
+    };
+
+    async function resolveImportMap() {
+        let useLocal = false;
+        try {
+            const res = await fetch(LOCAL.three, { method: "HEAD" });
+            useLocal = res.ok;
+        } catch (e) {
+            useLocal = false;
+        }
+
+        const map = {
+            imports: {
+                three: useLocal ? LOCAL.three : CDN.three,
+                "three/addons/": useLocal ? LOCAL.addons : CDN.addons,
+            },
+        };
+
+        const script = document.createElement("script");
+        script.type = "importmap";
+        script.textContent = JSON.stringify(map);
+        document.head.appendChild(script);
+    }
+
+    await resolveImportMap();
+    await import("/js/standalone.js");
+</script>
+
+
+</body>
+</html>
