@@ -10,6 +10,12 @@ Bridge finite-element result viewer built with **Three.js + Vite**. It turns per
 
 > <img src="assets/deepseek.svg" alt="DeepSeek" width="18" height="18"> **Powered by DeepSeek** — AI-assisted project.
 
+### Disclaimer
+
+This project is a work in progress, provided **"AS IS"** without warranty or security guarantee. The Go backend is not included because it is still under development. You are solely responsible for testing, security, legal compliance and any use of this software. Unauthorized security testing, illegal activity, and use in nuclear, weapons, military, life-support, medical, aviation or critical-infrastructure systems are prohibited. To the maximum extent permitted by law, the author disclaims liability for any loss, vulnerability, data breach or illegal use.
+
+**[Read the full disclaimer](DISCLAIMER.md)** — project status, prohibited uses, liability, indemnity and jurisdiction.
+
 ### Features
 
 - Scalar field switching from `field_map`, no hard-coded field list
@@ -99,6 +105,12 @@ This is a **source-available, view-only** repository, not open source. No permis
 基于 **Three.js + Vite** 的桥梁有限元结果可视化。它把每个顶点的仿真结果（GLB 几何 + JSON 场信息 + float32 BIN）映射成 GPU 热力图，支持物理场切换、色板、可拖动色标和传感器锚点。
 
 > <img src="assets/deepseek.svg" alt="DeepSeek" width="18" height="18"> **由 DeepSeek 提供 AI 辅助** — 本项目在开发过程中使用了 AI。
+
+### 免责声明
+
+本项目仍在开发中，按“现状”提供，不附带任何保证或安全承诺。Go 后端尚未开发完成，因此不包含在本仓库中。您应自行负责测试、安全评估、法律合规及一切使用行为。禁止未经授权的安全测试、非法用途，以及将本软件用于核设施、核武器、军事、生命维持、医疗、航空或关键基础设施等高风险场景。在适用法律允许的最大范围内，作者不对任何损失、漏洞、数据泄露或非法使用承担责任。
+
+**[查看完整免责声明](DISCLAIMER.md)** — 项目状态、禁止用途、责任限制、赔偿与管辖。
 
 ### 功能
 
