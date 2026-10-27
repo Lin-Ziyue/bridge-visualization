@@ -10,6 +10,10 @@
 
 This project is a work in progress. The Go backend and other server-side components are **not included because they are still under development and not ready for release**. The frontend is provided for demonstration, research and evaluation only.
 
+### Acceptance by Use
+
+By accessing, downloading, installing, copying, or using this software, you acknowledge that you have read, understood, and agree to be bound by this disclaimer and the LICENSE. If you do not agree, you must not access or use the software.
+
 ### No Warranty
 
 The software is provided **"AS IS"** and **"AS AVAILABLE"**, without warranty of any kind, express or implied, including but not limited to merchantability, fitness for a particular purpose, title, and non-infringement. No oral or written information or advice given by the author creates a warranty.
@@ -96,6 +100,10 @@ This document is not legal advice. Consult a qualified lawyer before relying on 
 ### 项目状态
 
 本项目仍在开发中，尚未完成。Go 后端及其他服务端组件因尚未开发完成、未达到发布状态，不包含在本仓库中。前端代码仅用于演示、研究和评估。
+
+### 使用即视为同意
+
+您访问、下载、安装、复制或使用本软件，即表示您已阅读、理解并同意受本免责声明和 LICENSE 的约束。如果您不同意，请勿访问或使用本软件。
 
 ### 不作任何保证
 
