@@ -12,6 +12,7 @@
 | [Data](#data) | [数据](#数据) |
 | [Structure](#structure) | [结构](#结构) |
 | [AI Assistance](#ai-assistance) | [AI 使用说明](#ai-使用说明) |
+| [Acknowledgements](#acknowledgements) | [致谢](#致谢) |
 | [License](#license) | [许可证](#许可证) |
 | [Notes](#notes) | [说明](#说明) |
 
@@ -98,6 +99,14 @@ This repository contains code and documentation generated or revised with AI ass
   <strong>Powered by DeepSeek</strong><br>
   <sub>AI-assisted development</sub>
 </p>
+
+### Acknowledgements
+
+- [Three.js](https://threejs.org/) (MIT) — 3D rendering, GLTFLoader and OrbitControls.
+- [Vite](https://vite.dev/) (MIT) — development server and build tooling.
+- [DeepSeek](https://www.deepseek.com/) — AI-assisted development.
+- [Simple Icons](https://simpleicons.org/) (CC0) — DeepSeek icon.
+- Color palettes are based on widely used scientific colormaps.
 
 ### License
 
@@ -194,6 +203,14 @@ DEVELOPMENT.md           架构、数据契约、API 和函数索引
   <strong>Powered by DeepSeek</strong><br>
   <sub>AI-assisted development · 由 DeepSeek 提供 AI 辅助</sub>
 </p>
+
+### 致谢
+
+- [Three.js](https://threejs.org/)（MIT）— 三维渲染、GLTFLoader 和 OrbitControls。
+- [Vite](https://vite.dev/)（MIT）— 开发服务器和构建工具。
+- [DeepSeek](https://www.deepseek.com/) — AI 辅助开发。
+- [Simple Icons](https://simpleicons.org/)（CC0）— DeepSeek 图标。
+- 色板基于常用的科学可视化色板。
 
 ### 许可证
 
