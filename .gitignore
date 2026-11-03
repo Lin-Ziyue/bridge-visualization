@@ -1,18 +1,20 @@
 node_modules/
 dist/
 .idea/
+
 *.bak
 *.pre-*.bak
 
-# Generated / demo data (not part of this repository)
+# Local simulation data (optional; not part of this branch)
 bridge_output/
-public/
+public/bridge_output/
+public/vendor/
 
-# Go backend experiment (intentionally excluded)
+# Go backend experiment (not part of this branch)
 main.go
 go.mod
 
-# Earlier experiments
+# Earlier vanilla experiments
 segs/
 copy.js
 BridgeHeatShader.js
