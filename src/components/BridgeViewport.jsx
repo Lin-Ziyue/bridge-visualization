@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { TrackballControls } from 'three/addons/controls/TrackballControls.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { sensors } from '../data/mock'
 import { colorAt, palettes } from '../data/palettes'
@@ -8,7 +8,7 @@ import { colorAt, palettes } from '../data/palettes'
 const MODEL_URL = '/model.glb'
 const HEAT_META_URL = '/bridge_output/30205080.1784464473837.json'
 const HEAT_BIN_URL = '/bridge_output/30205080.1784464473837.0.bin'
-const CAMERA_HOME = new THREE.Vector3(0, 2.25, 2.55)
+const CAMERA_HOME = new THREE.Vector3(0, 0.05, 3)
 
 async function loadHeat() {
   try {
@@ -66,7 +66,6 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
   const sensorRefs = useRef(new Map())
   const selectedRef = useRef(selectedSensor)
   const [status, setStatus] = useState('loading')
-  const [autoRotate, setAutoRotate] = useState(false)
 
   useEffect(() => {
     selectedRef.current = selectedSensor
@@ -75,6 +74,7 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
       item.core.material.color.set(active ? 0xffffff : item.baseColor)
       item.ring.material.color.set(active ? 0xffffff : item.baseColor)
       item.ring.material.opacity = active ? 0.95 : 0.5
+      item.label.visible = active
       item.label.material.opacity = active ? 1 : 0.72
     })
   }, [selectedSensor])
@@ -82,10 +82,6 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
   useEffect(() => {
     recolorRef.current?.(paletteName)
   }, [paletteName])
-
-  useEffect(() => {
-    if (controlsRef.current) controlsRef.current.autoRotate = autoRotate
-  }, [autoRotate])
 
   useEffect(() => {
     const host = hostRef.current
@@ -113,17 +109,14 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
     renderer.domElement.style.height = '100%'
     host.appendChild(renderer.domElement)
 
-    const controls = new OrbitControls(camera, renderer.domElement)
-    controls.enableDamping = true
-    controls.dampingFactor = 0.06
-    controls.enablePan = false
-    controls.minDistance = 1.2
-    controls.maxDistance = 7
-    controls.minPolarAngle = 0.05
-    controls.maxPolarAngle = Math.PI - 0.05
-    controls.autoRotate = false
-    controls.autoRotateSpeed = 0.6
+    const controls = new TrackballControls(camera, renderer.domElement)
     controls.target.set(0, 0, 0)
+    controls.rotateSpeed = 2.0
+    controls.zoomSpeed = 1.2
+    controls.panSpeed = 0.8
+    controls.noPan = true
+    controls.staticMoving = false
+    controls.dynamicDampingFactor = 0.15
     controlsRef.current = controls
 
     const raycaster = new THREE.Raycaster()
@@ -153,7 +146,9 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
     scene.add(ambient, key, fill, warm)
 
     const grid = new THREE.GridHelper(7, 28, 0x1c4f78, 0x0d2236)
-    grid.position.y = -0.5
+    grid.rotation.x = Math.PI / 2
+    grid.position.z = -0.55
+    grid.position.y = 0
     grid.material.transparent = true
     grid.material.opacity = 0.3
     scene.add(grid)
@@ -164,6 +159,7 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
       renderer.setSize(width, height, false)
       camera.aspect = width / height
       camera.updateProjectionMatrix()
+      controls.handleResize()
     }
     const observer = new ResizeObserver(resize)
     observer.observe(host)
@@ -204,6 +200,7 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
         item.core.material.color.set(active ? 0xffffff : item.baseColor)
         item.ring.material.color.set(active ? 0xffffff : item.baseColor)
         item.ring.material.opacity = active ? 0.95 : 0.5
+        item.label.visible = active
         item.label.material.opacity = active ? 1 : 0.72
       })
     }
@@ -219,8 +216,8 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
         const color = baseColor
         const position = new THREE.Vector3(
           (sensor.coord.x - center.x) * scale,
-          0.075,
-          (sensor.coord.z - center.z) * scale
+          (sensor.coord.y - center.y) * scale,
+          0.055
         )
 
         const core = new THREE.Mesh(
@@ -239,21 +236,21 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
             side: THREE.DoubleSide,
           })
         )
-        ring.rotation.x = -Math.PI / 2
+        ring.rotation.x = 0
         ring.position.copy(position)
-        ring.position.y -= 0.012
+        ring.position.z -= 0.008
         ring.userData.sensorId = sensor.id
 
         const stem = new THREE.Line(
           new THREE.BufferGeometry().setFromPoints([
-            new THREE.Vector3(position.x, 0.025, position.z),
-            new THREE.Vector3(position.x, position.y - 0.02, position.z),
+            new THREE.Vector3(position.x, position.y, 0.008),
+            new THREE.Vector3(position.x, position.y, position.z - 0.018),
           ]),
           new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.4 })
         )
 
         const label = makeLabel(sensor.id, sensor.status === 'warning' ? '#ffb547' : '#38d6ff')
-        label.position.set(position.x, position.y + 0.105, position.z)
+        label.position.set(position.x, position.y + 0.055, position.z + 0.02)
         label.userData.sensorId = sensor.id
 
         group.add(core, ring, stem, label)
@@ -330,18 +327,11 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
     }
     boot()
 
-    const stopAutoRotate = () => {
-      controls.autoRotate = false
-      setAutoRotate(false)
-    }
-    controls.addEventListener('start', stopAutoRotate)
-
     return () => {
       disposed = true
       cancelAnimationFrame(raf)
       observer.disconnect()
       renderer.domElement.removeEventListener('click', handleCanvasClick)
-      controls.removeEventListener('start', stopAutoRotate)
       controls.dispose()
       renderer.dispose()
       if (renderer.domElement.parentNode) {
@@ -370,8 +360,6 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
     if (!controls || !camera) return
     camera.position.copy(CAMERA_HOME)
     controls.target.set(0, 0, 0)
-    controls.autoRotate = false
-    setAutoRotate(false)
     controls.update()
   }
 
@@ -384,13 +372,6 @@ export default function BridgeViewport({ paletteName = 'viridis', selectedSensor
       )}
       <div className="viewport-actions">
         <button type="button" onClick={reset}>复位视角</button>
-        <button
-          type="button"
-          className={autoRotate ? 'is-active' : ''}
-          onClick={() => setAutoRotate((value) => !value)}
-        >
-          自动旋转
-        </button>
       </div>
     </div>
   )

@@ -15,7 +15,7 @@ A React dashboard for bridge structural health monitoring: a Three.js bridge hea
 - Six sensor markers drawn on the 3D bridge; click a marker, chip or table row to view that sensor's history
 - Switchable heatmap palettes: Viridis, Plasma, Inferno, Magma, Cividis, Turbo, Coolwarm, RdBu, Spectral, Grayscale, Jet (the original `colorMap.json` library)
 - 80 Hz sampling label, sensor ID / coordinates / strain / status table (no temperature field)
-- Flat default camera; full vertical orbit; reset view and optional auto-rotation
+- Flat default camera; free vertical orbit; reset view
 
 ### Stack
 
@@ -76,7 +76,7 @@ docs/dashboard.png         preview image
 - 三维桥梁上绘制 6 个传感器标记；点击标记、顶部芯片或表格行，查看该传感器的应变历史
 - 热力配色可切换：Viridis、Plasma、Inferno、Magma、Cividis、Turbo、Coolwarm、RdBu、Spectral、Grayscale、Jet（原版 `colorMap.json` 色板库）
 - 采样频率 80 Hz；表格显示编号 / 坐标 / 应变 / 状态（不显示温度）
-- 默认视角压平；支持完整俯仰旋转、复位视角和自动旋转
+- 默认视角压平；支持完整自由旋转和复位视角
 
 ### 技术栈
 
