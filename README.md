@@ -60,6 +60,7 @@ docs/dashboard.png         preview image
 
 ### Related
 
+- [Temporary acceptance note](ACCEPTANCE.md)
 - `main` branch: original vanilla Three.js viewer.
 - [DISCLAIMER.md](DISCLAIMER.md) · [LICENSE](LICENSE)
 
@@ -121,5 +122,6 @@ docs/dashboard.png         预览图
 
 ### 相关
 
+- [临时验收说明](ACCEPTANCE.md)
 - `main` 分支：原来的原生 Three.js 查看器。
 - [DISCLAIMER.md](DISCLAIMER.md) · [LICENSE](LICENSE)
