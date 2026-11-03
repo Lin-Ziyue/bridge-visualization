@@ -6,9 +6,16 @@
 
 ## English
 
-A React dashboard for bridge structural health monitoring: a Three.js bridge heatmap in the center, an ECharts strain-trend chart and a sensor table on the right, and a product-style header/status bar.
+A React dashboard for bridge structural health monitoring: a Three.js bridge heatmap in the center, an ECharts strain-history chart and a sensor table on the right, and a product-style header/status bar.
 
 ![Dashboard preview](docs/dashboard.png)
+
+### Features
+
+- Six sensor markers drawn on the 3D bridge; click a marker, chip or table row to view that sensor's history
+- Switchable heatmap palettes: Ocean, Viridis, Turbo, Coolwarm
+- 80 Hz sampling label, sensor ID / coordinates / strain / status table (no temperature field)
+- Flat default camera; reset view and optional auto-rotation
 
 ### Stack
 
@@ -37,9 +44,10 @@ src/
     Header.jsx             product header + live clock
     BridgeViewport.jsx     Three.js bridge + heatmap colors
     KpiGrid.jsx            KPI cards
-    MonitorChart.jsx       ECharts strain trend
+    MonitorChart.jsx       ECharts strain history
     SensorTable.jsx        sensor table
-  data/mock.js             demo KPI / trend / sensor data
+  data/mock.js             demo KPI / history / sensor data
+  data/palettes.js         heatmap palettes and interpolation
 public/
   model.glb                bridge geometry
 docs/dashboard.png         preview image
@@ -58,9 +66,16 @@ docs/dashboard.png         preview image
 
 ## 中文
 
-基于 React 的桥梁结构健康监测大屏：中间是 Three.js 桥梁热力模型，右侧是 ECharts 应变趋势图和传感器表格，顶部是产品化的标题栏与状态栏。
+基于 React 的桥梁结构健康监测大屏：中间是 Three.js 桥梁热力模型，右侧是 ECharts 应变历史记录和传感器表格，顶部是产品化的标题栏与状态栏。
 
 ![界面预览](docs/dashboard.png)
+
+### 功能
+
+- 三维桥梁上绘制 6 个传感器标记；点击标记、顶部芯片或表格行，查看该传感器的应变历史
+- 热力配色可切换：深海蓝、Viridis、Turbo、冷暖
+- 采样频率 80 Hz；表格显示编号 / 坐标 / 应变 / 状态（不显示温度）
+- 默认视角压平；支持复位视角和自动旋转
 
 ### 技术栈
 
@@ -89,9 +104,10 @@ src/
     Header.jsx             顶部标题栏 + 实时时钟
     BridgeViewport.jsx     Three.js 桥梁 + 热力颜色
     KpiGrid.jsx            KPI 指标卡
-    MonitorChart.jsx       ECharts 应变趋势
+    MonitorChart.jsx       ECharts 应变历史
     SensorTable.jsx        传感器表格
-  data/mock.js             演示 KPI / 趋势 / 传感器数据
+  data/mock.js             演示 KPI / 历史 / 传感器数据
+  data/palettes.js         热力配色与插值
 public/
   model.glb                桥梁几何
 docs/dashboard.png         预览图

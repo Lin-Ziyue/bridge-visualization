@@ -2,21 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+import { sensors } from '../data/mock'
+import { colorAt, palettes } from '../data/palettes'
 
 const MODEL_URL = '/model.glb'
 const HEAT_META_URL = '/bridge_output/30205080.1784464473837.json'
 const HEAT_BIN_URL = '/bridge_output/30205080.1784464473837.0.bin'
-
-const COLOR_LOW = new THREE.Color('#1747ff')
-const COLOR_MID = new THREE.Color('#20d6ff')
-const COLOR_HIGH = new THREE.Color('#ffb547')
-
-function colorFor(t) {
-  const clamped = Math.max(0, Math.min(1, Number.isFinite(t) ? t : 0))
-  return clamped < 0.5
-    ? new THREE.Color().lerpColors(COLOR_LOW, COLOR_MID, clamped * 2)
-    : new THREE.Color().lerpColors(COLOR_MID, COLOR_HIGH, (clamped - 0.5) * 2)
-}
+const CAMERA_HOME = new THREE.Vector3(0, 2.25, 2.55)
 
 async function loadHeat() {
   try {
@@ -41,12 +33,54 @@ function loadModel() {
   })
 }
 
-export default function BridgeViewport() {
+function makeLabel(text, color) {
+  const canvas = document.createElement('canvas')
+  canvas.width = 128
+  canvas.height = 40
+  const ctx = canvas.getContext('2d')
+  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  ctx.font = '600 22px "Segoe UI", sans-serif'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillStyle = color
+  ctx.fillText(text, 64, 20)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.minFilter = THREE.LinearFilter
+  const material = new THREE.SpriteMaterial({
+    map: texture,
+    transparent: true,
+    depthTest: false,
+    opacity: 0.9,
+  })
+  const sprite = new THREE.Sprite(material)
+  sprite.scale.set(0.3, 0.094, 1)
+  sprite.renderOrder = 10
+  return sprite
+}
+
+export default function BridgeViewport({ paletteName = 'ocean', selectedSensor = 'S-02', onSelectSensor }) {
   const hostRef = useRef(null)
   const controlsRef = useRef(null)
   const cameraRef = useRef(null)
+  const recolorRef = useRef(null)
+  const sensorRefs = useRef(new Map())
+  const selectedRef = useRef(selectedSensor)
   const [status, setStatus] = useState('loading')
-  const [autoRotate, setAutoRotate] = useState(true)
+  const [autoRotate, setAutoRotate] = useState(false)
+
+  useEffect(() => {
+    selectedRef.current = selectedSensor
+    sensorRefs.current.forEach((item, id) => {
+      const active = id === selectedSensor
+      item.core.scale.setScalar(active ? 1.65 : 1)
+      item.ring.material.opacity = active ? 0.95 : 0.5
+      item.label.material.opacity = active ? 1 : 0.72
+    })
+  }, [selectedSensor])
+
+  useEffect(() => {
+    recolorRef.current?.(paletteName)
+  }, [paletteName])
 
   useEffect(() => {
     if (controlsRef.current) controlsRef.current.autoRotate = autoRotate
@@ -59,10 +93,11 @@ export default function BridgeViewport() {
     let disposed = false
     let raf = 0
     const scene = new THREE.Scene()
-    scene.fog = new THREE.FogExp2(0x050b14, 0.045)
+    scene.fog = new THREE.FogExp2(0x050b14, 0.04)
 
-    const camera = new THREE.PerspectiveCamera(38, 1, 0.01, 100)
-    camera.position.set(2.4, 1.55, 2.6)
+    const camera = new THREE.PerspectiveCamera(36, 1, 0.01, 100)
+    camera.position.copy(CAMERA_HOME)
+    camera.lookAt(0, 0, 0)
     cameraRef.current = camera
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
@@ -81,16 +116,33 @@ export default function BridgeViewport() {
     controls.enableDamping = true
     controls.dampingFactor = 0.06
     controls.enablePan = false
-    controls.minDistance = 1.1
-    controls.maxDistance = 8
-    controls.minPolarAngle = 0.15
-    controls.maxPolarAngle = Math.PI / 2.04
-    controls.autoRotate = true
-    controls.autoRotateSpeed = 0.65
+    controls.minDistance = 1.2
+    controls.maxDistance = 7
+    controls.minPolarAngle = 0.12
+    controls.maxPolarAngle = Math.PI / 2.08
+    controls.autoRotate = false
+    controls.autoRotateSpeed = 0.6
     controls.target.set(0, 0, 0)
     controlsRef.current = controls
 
-    const ambient = new THREE.AmbientLight(0x9cc8ff, 1.4)
+    const raycaster = new THREE.Raycaster()
+    const pointer = new THREE.Vector2()
+    let sensorGroup = null
+
+    const handleCanvasClick = (event) => {
+      if (!sensorGroup || !onSelectSensor) return
+      const rect = renderer.domElement.getBoundingClientRect()
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+      raycaster.setFromCamera(pointer, camera)
+      const hit = raycaster
+        .intersectObjects(sensorGroup.children, true)
+        .find((item) => item.object.userData.sensorId)
+      if (hit) onSelectSensor(hit.object.userData.sensorId)
+    }
+    renderer.domElement.addEventListener('click', handleCanvasClick)
+
+    const ambient = new THREE.AmbientLight(0x9cc8ff, 1.5)
     const key = new THREE.DirectionalLight(0xffffff, 2.2)
     key.position.set(4, 6, 5)
     const fill = new THREE.PointLight(0x2f7bff, 8, 9)
@@ -102,7 +154,7 @@ export default function BridgeViewport() {
     const grid = new THREE.GridHelper(7, 28, 0x1c4f78, 0x0d2236)
     grid.position.y = -0.5
     grid.material.transparent = true
-    grid.material.opacity = 0.32
+    grid.material.opacity = 0.3
     scene.add(grid)
 
     const resize = () => {
@@ -124,17 +176,100 @@ export default function BridgeViewport() {
     }
     animate()
 
+    const meshInfo = []
+    const recolorMesh = (info, name) => {
+      const palette = palettes[name] || palettes.ocean
+      const colors = info.colors
+      for (let i = 0; i < info.count; i++) {
+        const t = info.hasHeat
+          ? (info.values[info.offset + i] - info.min) / info.span
+          : (info.position.getX(i) - info.localMinX) / info.spanX
+        const rgb = colorAt(palette.stops, t)
+        colors[i * 3] = rgb.r
+        colors[i * 3 + 1] = rgb.g
+        colors[i * 3 + 2] = rgb.b
+      }
+      info.geometry.getAttribute('color').needsUpdate = true
+    }
+
+    const recolorAll = (name) => {
+      meshInfo.forEach((info) => recolorMesh(info, name))
+    }
+    recolorRef.current = recolorAll
+
+    const highlightSensors = (id) => {
+      sensorRefs.current.forEach((item, sensorId) => {
+        const active = sensorId === id
+        item.core.scale.setScalar(active ? 1.65 : 1)
+        item.ring.material.opacity = active ? 0.95 : 0.5
+        item.label.material.opacity = active ? 1 : 0.72
+      })
+    }
+
+    const addSensors = (center, scale) => {
+      const group = new THREE.Group()
+      group.name = 'sensor-layer'
+      sensorGroup = group
+      scene.add(group)
+
+      sensors.forEach((sensor) => {
+        const color = sensor.status === 'warning' ? 0xffb547 : 0x38d6ff
+        const position = new THREE.Vector3(
+          (sensor.coord.x - center.x) * scale,
+          0.075,
+          (sensor.coord.z - center.z) * scale
+        )
+
+        const core = new THREE.Mesh(
+          new THREE.SphereGeometry(0.04, 16, 16),
+          new THREE.MeshBasicMaterial({ color })
+        )
+        core.position.copy(position)
+        core.userData.sensorId = sensor.id
+
+        const ring = new THREE.Mesh(
+          new THREE.RingGeometry(0.058, 0.074, 28),
+          new THREE.MeshBasicMaterial({
+            color,
+            transparent: true,
+            opacity: 0.5,
+            side: THREE.DoubleSide,
+          })
+        )
+        ring.rotation.x = -Math.PI / 2
+        ring.position.copy(position)
+        ring.position.y -= 0.012
+        ring.userData.sensorId = sensor.id
+
+        const stem = new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints([
+            new THREE.Vector3(position.x, 0.025, position.z),
+            new THREE.Vector3(position.x, position.y - 0.02, position.z),
+          ]),
+          new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.4 })
+        )
+
+        const label = makeLabel(sensor.id, sensor.status === 'warning' ? '#ffb547' : '#38d6ff')
+        label.position.set(position.x, position.y + 0.105, position.z)
+        label.userData.sensorId = sensor.id
+
+        group.add(core, ring, stem, label)
+        sensorRefs.current.set(sensor.id, { core, ring, label })
+      })
+
+      highlightSensors(selectedRef.current)
+    }
+
     const applyHeat = (model, heat) => {
       const rawBox = new THREE.Box3().setFromObject(model)
       const rawSize = rawBox.getSize(new THREE.Vector3())
       const center = rawBox.getCenter(new THREE.Vector3())
       const maxDim = Math.max(rawSize.x, rawSize.y, rawSize.z) || 1
+      const scale = 2.8 / maxDim
 
       model.position.sub(center)
-      model.scale.setScalar(2.8 / maxDim)
-      model.rotation.y = -0.16
+      model.scale.setScalar(scale)
 
-      let offset = 0
       model.traverse((object) => {
         if (!object.isMesh) return
         const geometry = object.geometry
@@ -142,20 +277,19 @@ export default function BridgeViewport() {
         const count = position.count
         const colors = new Float32Array(count * 3)
         const localBox = new THREE.Box3().setFromBufferAttribute(position)
-        const spanX = Math.max(localBox.max.x - localBox.min.x, 1e-6)
-        const hasHeat = heat && heat.values.length >= offset + count
-        const span = heat ? Math.max(heat.max - heat.min, 1e-9) : 1
-
-        for (let i = 0; i < count; i++) {
-          const t = hasHeat
-            ? (heat.values[offset + i] - heat.min) / span
-            : (position.getX(i) - localBox.min.x) / spanX
-          const color = colorFor(t)
-          colors[i * 3] = color.r
-          colors[i * 3 + 1] = color.g
-          colors[i * 3 + 2] = color.b
+        const info = {
+          geometry,
+          position,
+          count,
+          colors,
+          offset: meshInfo.reduce((sum, item) => sum + item.count, 0),
+          hasHeat: Boolean(heat && heat.values.length >= meshInfo.reduce((sum, item) => sum + item.count, 0) + count),
+          values: heat?.values,
+          min: heat?.min ?? 0,
+          span: heat ? Math.max(heat.max - heat.min, 1e-9) : 1,
+          localMinX: localBox.min.x,
+          spanX: Math.max(localBox.max.x - localBox.min.x, 1e-6),
         }
-
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
         object.material = new THREE.MeshStandardMaterial({
           vertexColors: true,
@@ -165,8 +299,12 @@ export default function BridgeViewport() {
           emissiveIntensity: 0.35,
           side: THREE.DoubleSide,
         })
-        offset += count
+        meshInfo.push(info)
       })
+
+      recolorAll(paletteName)
+      scene.add(model)
+      addSensors(center, scale)
     }
 
     const boot = async () => {
@@ -182,7 +320,6 @@ export default function BridgeViewport() {
           return
         }
         applyHeat(model, heat)
-        scene.add(model)
         setStatus('ready')
       } catch {
         if (!disposed) setStatus('error')
@@ -200,6 +337,7 @@ export default function BridgeViewport() {
       disposed = true
       cancelAnimationFrame(raf)
       observer.disconnect()
+      renderer.domElement.removeEventListener('click', handleCanvasClick)
       controls.removeEventListener('start', stopAutoRotate)
       controls.dispose()
       renderer.dispose()
@@ -207,12 +345,17 @@ export default function BridgeViewport() {
         renderer.domElement.parentNode.removeChild(renderer.domElement)
       }
       scene.traverse((object) => {
-        if (object.isMesh || object.isLine) {
+        if (object.isMesh || object.isLine || object.isSprite) {
           object.geometry?.dispose()
           const materials = Array.isArray(object.material) ? object.material : [object.material]
-          materials.forEach((material) => material?.dispose())
+          materials.forEach((material) => {
+            material?.map?.dispose()
+            material?.dispose()
+          })
         }
       })
+      sensorRefs.current.clear()
+      recolorRef.current = null
       controlsRef.current = null
       cameraRef.current = null
     }
@@ -222,7 +365,7 @@ export default function BridgeViewport() {
     const controls = controlsRef.current
     const camera = cameraRef.current
     if (!controls || !camera) return
-    camera.position.set(2.4, 1.55, 2.6)
+    camera.position.copy(CAMERA_HOME)
     controls.target.set(0, 0, 0)
     controls.autoRotate = false
     setAutoRotate(false)

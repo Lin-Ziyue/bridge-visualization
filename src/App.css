@@ -328,6 +328,35 @@
   white-space: nowrap;
 }
 
+.palette-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #6f8bb3;
+  font-size: 9px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.palette-control select {
+  padding: 3px 18px 3px 7px;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background:
+    linear-gradient(45deg, transparent 50%, #6f8bb3 50%) calc(100% - 9px) 50% / 4px 4px no-repeat,
+    linear-gradient(135deg, #6f8bb3 50%, transparent 50%) calc(100% - 5px) 50% / 4px 4px no-repeat,
+    #07182a;
+  color: #9cc8e8;
+  font: inherit;
+  font-size: 9px;
+  cursor: pointer;
+  appearance: none;
+}
+
+.palette-control select:hover {
+  border-color: var(--line-strong);
+}
+
 .viewport-stage {
   position: relative;
   flex: 1;
@@ -617,6 +646,35 @@
   min-height: 0;
 }
 
+.sensor-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 1px 0 3px;
+}
+
+.sensor-chip {
+  padding: 2px 5px;
+  border: 1px solid rgba(74, 140, 200, 0.18);
+  border-radius: 3px;
+  background: transparent;
+  color: #5f7c9f;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 8px;
+  cursor: pointer;
+}
+
+.sensor-chip:hover {
+  color: #9cc8e8;
+  border-color: rgba(74, 140, 200, 0.38);
+}
+
+.sensor-chip.is-active {
+  border-color: rgba(56, 214, 255, 0.48);
+  background: rgba(56, 214, 255, 0.08);
+  color: var(--cyan);
+}
+
 .table-scroll {
   flex: 1;
   min-height: 0;
@@ -651,8 +709,20 @@
   white-space: nowrap;
 }
 
+.sensor-table tbody tr {
+  cursor: pointer;
+}
+
 .sensor-table tbody tr:hover {
   background: rgba(56, 214, 255, 0.045);
+}
+
+.sensor-table tbody tr.is-selected {
+  background: rgba(56, 214, 255, 0.08);
+}
+
+.sensor-table tbody tr.is-selected td {
+  color: #d7efff;
 }
 
 .sensor-id {
@@ -662,8 +732,11 @@
   letter-spacing: 0.4px;
 }
 
-.sensor-position {
+.coord-cell {
   color: #7897b8;
+  font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+  font-size: 8.5px;
+  letter-spacing: 0.1px;
 }
 
 .strain-cell {
