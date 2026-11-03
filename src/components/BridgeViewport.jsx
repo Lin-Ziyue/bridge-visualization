@@ -58,7 +58,7 @@ function makeLabel(text, color) {
   return sprite
 }
 
-export default function BridgeViewport({ paletteName = 'ocean', selectedSensor = 'S-02', onSelectSensor }) {
+export default function BridgeViewport({ paletteName = 'viridis', selectedSensor = 'S-00', onSelectSensor }) {
   const hostRef = useRef(null)
   const controlsRef = useRef(null)
   const cameraRef = useRef(null)
@@ -72,7 +72,8 @@ export default function BridgeViewport({ paletteName = 'ocean', selectedSensor =
     selectedRef.current = selectedSensor
     sensorRefs.current.forEach((item, id) => {
       const active = id === selectedSensor
-      item.core.scale.setScalar(active ? 1.65 : 1)
+      item.core.material.color.set(active ? 0xffffff : item.baseColor)
+      item.ring.material.color.set(active ? 0xffffff : item.baseColor)
       item.ring.material.opacity = active ? 0.95 : 0.5
       item.label.material.opacity = active ? 1 : 0.72
     })
@@ -118,8 +119,8 @@ export default function BridgeViewport({ paletteName = 'ocean', selectedSensor =
     controls.enablePan = false
     controls.minDistance = 1.2
     controls.maxDistance = 7
-    controls.minPolarAngle = 0.12
-    controls.maxPolarAngle = Math.PI / 2.08
+    controls.minPolarAngle = 0.05
+    controls.maxPolarAngle = Math.PI - 0.05
     controls.autoRotate = false
     controls.autoRotateSpeed = 0.6
     controls.target.set(0, 0, 0)
@@ -200,7 +201,8 @@ export default function BridgeViewport({ paletteName = 'ocean', selectedSensor =
     const highlightSensors = (id) => {
       sensorRefs.current.forEach((item, sensorId) => {
         const active = sensorId === id
-        item.core.scale.setScalar(active ? 1.65 : 1)
+        item.core.material.color.set(active ? 0xffffff : item.baseColor)
+        item.ring.material.color.set(active ? 0xffffff : item.baseColor)
         item.ring.material.opacity = active ? 0.95 : 0.5
         item.label.material.opacity = active ? 1 : 0.72
       })
@@ -213,7 +215,8 @@ export default function BridgeViewport({ paletteName = 'ocean', selectedSensor =
       scene.add(group)
 
       sensors.forEach((sensor) => {
-        const color = sensor.status === 'warning' ? 0xffb547 : 0x38d6ff
+        const baseColor = sensor.status === 'warning' ? 0xffb547 : 0x38d6ff
+        const color = baseColor
         const position = new THREE.Vector3(
           (sensor.coord.x - center.x) * scale,
           0.075,
@@ -254,7 +257,7 @@ export default function BridgeViewport({ paletteName = 'ocean', selectedSensor =
         label.userData.sensorId = sensor.id
 
         group.add(core, ring, stem, label)
-        sensorRefs.current.set(sensor.id, { core, ring, label })
+        sensorRefs.current.set(sensor.id, { core, ring, label, baseColor })
       })
 
       highlightSensors(selectedRef.current)

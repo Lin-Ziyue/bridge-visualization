@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { sensors, statusText } from '../data/mock'
 
 function formatCoord(value) {
@@ -5,8 +6,22 @@ function formatCoord(value) {
 }
 
 export default function SensorTable({ selected, onSelect }) {
+  const scrollRef = useRef(null)
+  const rowRefs = useRef({})
+
+  useEffect(() => {
+    const container = scrollRef.current
+    const row = rowRefs.current[selected]
+    if (!container || !row) return
+    const headerHeight = container.querySelector('thead')?.offsetHeight || 0
+    container.scrollTo({
+      top: Math.max(0, row.offsetTop - headerHeight),
+      behavior: 'smooth',
+    })
+  }, [selected])
+
   return (
-    <div className="table-scroll">
+    <div className="table-scroll" ref={scrollRef}>
       <table className="sensor-table">
         <thead>
           <tr>
@@ -20,6 +35,7 @@ export default function SensorTable({ selected, onSelect }) {
           {sensors.map((sensor) => (
             <tr
               key={sensor.id}
+              ref={(element) => { rowRefs.current[sensor.id] = element }}
               className={sensor.id === selected ? 'is-selected' : ''}
               title={sensor.name}
               tabIndex={0}

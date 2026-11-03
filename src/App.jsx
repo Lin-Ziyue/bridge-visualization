@@ -9,8 +9,8 @@ import { gradientCss, palettes } from './data/palettes'
 import './App.css'
 
 export default function App() {
-  const [paletteName, setPaletteName] = useState('ocean')
-  const [selectedSensor, setSelectedSensor] = useState('S-02')
+  const [paletteName, setPaletteName] = useState('viridis')
+  const [selectedSensor, setSelectedSensor] = useState('S-00')
   const activeSensor = sensors.find((sensor) => sensor.id === selectedSensor) || sensors[0]
   const palette = palettes[paletteName]
 
